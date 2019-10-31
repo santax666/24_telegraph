@@ -1,7 +1,41 @@
 # Telegraph Clone
 
-{TODO. There will be project description}
+Данный скрипт:
+* создает и запускает [веб-сайт][] - инструмент для публикации анонимных статей;
+* На сайте любой пользователь может разместить статью и получить для нее уникальный url;
+* Реализована возможность редактирования, авторизация осуществляется по cookies.
 
-# Project Goals
+## Запуск
 
-The code is written for educational purposes. Training course for web-developers - [DEVMAN.org](https://devman.org)
+Введите в терминале:
+
+    python3 server.py
+
+## Зависимости
+
+Скрипт написан на языке Python 3, поэтому требует его наличия.
+
+Для формирования и запуска веб-страницы должен быть установлен модуль [Flask][].
+
+Дополнительные модули описаны в файле [requirements.txt][], их наличие также необходимо!
+
+## Поддержка
+
+Если у вас возникли сложности или вопросы по использованию скрипта, создайте 
+[обсуждение][] в данном репозитории или напишите на электронную почту 
+<IvanovVI87@gmail.com>.
+
+## Документация
+
+Документацию к модулю Flask можно получить по [ссылке][].
+
+
+# Цели проекта
+
+Данный код написан для образовательных целей. Учебный курс для веб-разработчиков - [DEVMAN.org](https://devman.org)
+
+[веб-сайт]: http://afisha-films.herokuapp.com/
+[Flask]: https://pypi.python.org/pypi/Flask/0.12.2
+[обсуждение]: https://github.com/santax666/24_telegraph/issues
+[ссылке]: http://flask.pocoo.org/docs/0.11/quickstart/
+[requirements.txt]: ./requirements.txt

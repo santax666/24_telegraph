@@ -1,49 +1,20 @@
-<!DOCTYPE html>
-<html lang="ru">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <meta name="description" content="Anonymous">
-    <meta name="author" content="">
-    <link rel="icon" href="favicon.ico">
-
-    <title>Anonymous</title>
-
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-
-  </head>
-
-  <body>
-
-    <nav class="navbar">
-      <div class="container">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="/">Anonymous</a>
-        </div>
-      </div>
-    </nav>
-
-    <div class="container">
+{% extends 'template.html' %}
+  {% block content %}
       <form method="POST">
         <div class="form-group">
-          <input name="header" class="form-control" placeholder="Заголовок" autofocus/>
+          <h3>{{ error }}</h3>
         </div>
         <div class="form-group">
-          <input name="signature" class="form-control" placeholder="Подпись"/>
+          <input name="header" class="form-control" placeholder="Заголовок" value="{{ form["header"] }}" autofocus/>
         </div>
         <div class="form-group">
-          <textarea name="body" class="form-control" rows="10" placeholder="Ваша история"></textarea>
+          <input name="signature" class="form-control" placeholder="Подпись" value="{{ form["signature"] }}"/>
+        </div>
+        <div class="form-group">
+          <textarea name="body" class="form-control" rows="10" placeholder="Ваша история">{{ form["body"] }}</textarea>
         </div>
         <div class="form-group">
           <button class="btn btn-primary" type="submit">Опубликовать</button>
         </div>
       </form>
-    </div><!-- /.container -->
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-  </body>
-</html>
+  {% endblock %}
