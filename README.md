@@ -34,7 +34,7 @@
 
 Данный код написан для образовательных целей. Учебный курс для веб-разработчиков - [DEVMAN.org](https://devman.org)
 
-[веб-сайт]: http://afisha-films.herokuapp.com/
+[веб-сайт]: http://telegraph.herokuapp.com/
 [Flask]: https://pypi.python.org/pypi/Flask/0.12.2
 [обсуждение]: https://github.com/santax666/24_telegraph/issues
 [ссылке]: http://flask.pocoo.org/docs/0.11/quickstart/
