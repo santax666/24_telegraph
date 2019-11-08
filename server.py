@@ -1,7 +1,23 @@
-from flask import Flask, render_template, request, make_response, g, redirect, url_for
-from datetime import datetime
-from binascii import crc32
+from flask import Flask, render_template, request, g, redirect, url_for, abort, after_this_request
+from os import urandom
 import json
+
+FORBIDDEN = 403
+NOT_FOUND = 404
+
+
+def generate_hash():
+    len_of_hash = 4
+    return urandom(len_of_hash).hex()
+
+
+def validate_form_data(texts):
+    min_len_of_text = 4
+    err_msg = ('Поля содержат только числа', 'Текст в полях слишком короткий')
+    numbers = ', '.join([i for i in texts if i.isdigit()])
+    short_texts = ', '.join([i for i in texts if len(i) < min_len_of_text])
+    errors = dict(zip(err_msg, (numbers, short_texts)))
+    return dict(filter(lambda x: x[1], errors.items()))
 
 
 def read_articles():
@@ -11,63 +27,67 @@ def read_articles():
 
 def write_articles(articles):
     with open('articles.json', 'w') as articles_file:
-        json.dump(articles, articles_file, ensure_ascii=False, indent=4)
+        json.dump(articles, articles_file, ensure_ascii=False)
 
 
-def update_articles(article_hash, new_data):
+def add_article(new_article):
+    article_hash = generate_hash()
+    update_article(article_hash, new_article)
+    return article_hash
+
+
+def update_article(article_hash, edited_article):
     articles = read_articles()
-    articles[article_hash] = new_data
+    articles.setdefault(article_hash, {}).update(edited_article)
     write_articles(articles)
-
-
-def generate_hash_str(str_for_hash):
-    return '{:08x}'.format(crc32(str_for_hash.encode('utf8')))
 
 
 app = Flask(__name__)
 
 
+@app.before_first_request
+def create_articles_file():
+    with open('articles.json', 'w') as articles_file:
+        articles_file.write('{}')
+
+
 @app.before_request
-def get_now_datetime():
-    g.now_str = datetime.now().strftime('%Y%m%d%H%M%f')
+def get_now_datetime_and_user():
     g.user = request.cookies.get('userid')
+    if g.user is None:
+        g.user = generate_hash()
+        @after_this_request
+        def remember_user(response):
+            response.set_cookie('userid', g.user)
+            return response
 
 
 @app.route('/', methods=['GET', 'POST'])
-def form(error=''):
+def show_main_page():
     article = request.form.to_dict()
-    if g.user is None:
-        user = generate_hash_str(g.now_str)
-        response = make_response(render_template('form.html', form=article))
-        response.set_cookie('userid', user)
-        return response
+    errors = validate_form_data(article.values())
+    if request.method == 'POST' and (not errors):
+        article['userid'] = g.user
+        article_hash = add_article(article)
+        return redirect(url_for('show_article', article_hash=article_hash))
+    return render_template('form.html', errors=errors, **article)
+
+
+@app.route('/<article_hash>')
+def show_article(article_hash):
+    article = read_articles().get(article_hash) or abort(NOT_FOUND)
+    return render_template('article.html', hash_str=article_hash, **article)
+
+
+@app.route('/<article_hash>/edit', methods=['GET', 'POST'])
+def edit_article(article_hash):
+    article = read_articles().get(article_hash) or abort(NOT_FOUND)
+    g.user == article['userid'] or abort(FORBIDDEN)
     if request.method == 'POST':
-        article_texts = article.values()
-        if all(article_texts):
-            hashstr = generate_hash_str(g.now_str + ''.join(article_texts))
-            article['userid'] = g.user
-            update_articles(hashstr, article)
-            return redirect(url_for('show_article', hashstr=hashstr))
-        else:
-            error = 'Вы заполнили не все поля'
-    return render_template('form.html', error=error, form=article)
+        update_article(article_hash, request.form.to_dict())
+        return redirect(url_for('show_article', article_hash=article_hash))
+    return render_template('form.html', **article)
 
 
-@app.route('/<hashstr>', methods=['GET', 'POST'])
-def show_article(hashstr):
-    article = read_articles().get(hashstr)
-    if article is None:
-        return render_template('404.html')
-    else:
-
-        if request.method == 'POST' and 'edit' in request.form:
-            return render_template('form.html', form=article)
-        else:
-            article.update(request.form.to_dict())
-            update_articles(hashstr, article)
-            owner = g.user == article['userid']
-            return render_template('article.html', form=article, owner=owner)
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)

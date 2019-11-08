@@ -1,15 +1,13 @@
 {% extends 'template.html' %}
-  {% block content %}
-      <div class="page-header">
-        <h1>{{ form["header"] }}</h1>
-      </div>
-      <p class="lead">{{ form["body"] }}</p>
-      <p>{{ form["signature"] }}</p>
-    {% if owner %}
-      <form method="POST">
-        <div class="form-group">
-          <button class="btn btn-primary" type="submit" name="edit">Редактировать</button>
-        </div>
-      </form>
-    {% endif %}
-  {% endblock %}
+{% block content %}
+  <div class="page-header">
+    <h1>{{ header }}</h1>
+  </div>
+  <p class="lead">{{ body }}</p>
+  <p>{{ signature }}</p>
+  {% if g.user==userid %}
+    <div class="form-group">
+      <a href="{{ hash_str }}/edit">Редактировать</a>
+    </div>
+  {% endif %}
+{% endblock %}

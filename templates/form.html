@@ -1,20 +1,27 @@
 {% extends 'template.html' %}
-  {% block content %}
-      <form method="POST">
-        <div class="form-group">
-          <h3>{{ error }}</h3>
-        </div>
-        <div class="form-group">
-          <input name="header" class="form-control" placeholder="Заголовок" value="{{ form["header"] }}" autofocus/>
-        </div>
-        <div class="form-group">
-          <input name="signature" class="form-control" placeholder="Подпись" value="{{ form["signature"] }}"/>
-        </div>
-        <div class="form-group">
-          <textarea name="body" class="form-control" rows="10" placeholder="Ваша история">{{ form["body"] }}</textarea>
-        </div>
-        <div class="form-group">
-          <button class="btn btn-primary" type="submit">Опубликовать</button>
-        </div>
-      </form>
-  {% endblock %}
+{% block content %}
+  {% if errors %}
+    <div class="alert alert-danger">
+     <strong>Текст содержит ошибки:</strong><br>
+     <ul id="errors_msg">
+     {% for error, err_values in errors.items() %}
+       <li>{{ error }}: ({{ err_values }})</li>
+     {% endfor %}
+     </ul>
+    </div>
+  {% endif %}
+  <form method="POST">
+    <div class="form-group">
+      <input required name="header" class="form-control" placeholder="Заголовок" value="{{ header }}" autofocus/>
+    </div>
+    <div class="form-group">
+      <input required name="signature" class="form-control" placeholder="Подпись" value="{{ signature }}"/>
+    </div>
+    <div class="form-group">
+      <textarea required name="body" class="form-control" rows="10" placeholder="Ваша история">{{ body }}</textarea>
+    </div>
+    <div class="form-group">
+      <button class="btn btn-primary" type="submit">Опубликовать</button>
+    </div>
+  </form>
+{% endblock %}
