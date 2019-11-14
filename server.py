@@ -4,6 +4,7 @@ import json
 
 FORBIDDEN = 403
 NOT_FOUND = 404
+DEBUG_MODE = False
 
 
 def generate_hash():
@@ -11,12 +12,18 @@ def generate_hash():
     return urandom(len_of_hash).hex()
 
 
-def validate_form_data(texts):
+def validate_form_data(article):
     min_len_of_text = 4
-    err_msg = ('Поля содержат только числа', 'Текст в полях слишком короткий')
+    err_msg = ('Поля содержат только числа', 'Текст в полях слишком короткий',
+               'Заполненных полей должно быть 3', 'Неизвестные поля')
+    req_fields = ('header', 'signature', 'body')
+    fields, texts = article.keys(), article.values()
     numbers = ', '.join([i for i in texts if i.isdigit()])
     short_texts = ', '.join([i for i in texts if len(i) < min_len_of_text])
-    errors = dict(zip(err_msg, (numbers, short_texts)))
+    extra_fields = len(fields) if len(fields) != len(req_fields) else ''
+    unknown_fields = ', '.join([i for i in fields if i not in req_fields])
+    errors = dict(zip(err_msg, (numbers, short_texts,
+                                extra_fields, unknown_fields)))
     return dict(filter(lambda x: x[1], errors.items()))
 
 
@@ -65,7 +72,7 @@ def get_now_datetime_and_user():
 @app.route('/', methods=['GET', 'POST'])
 def show_main_page():
     article = request.form.to_dict()
-    errors = validate_form_data(article.values())
+    errors = validate_form_data(article)
     if request.method == 'POST' and (not errors):
         article['userid'] = g.user
         article_hash = add_article(article)
@@ -90,4 +97,4 @@ def edit_article(article_hash):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=DEBUG_MODE)
