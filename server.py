@@ -32,7 +32,7 @@ def read_articles():
 
 
 def write_articles(articles):
-    with open('articles.json', 'w') as articles_file:
+    with open('articles.json', 'a') as articles_file:
         json.dump(articles, articles_file, ensure_ascii=False)
 
 
