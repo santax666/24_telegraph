@@ -22,9 +22,8 @@ def validate_form_data(article):
     short_texts = ', '.join([i for i in texts if len(i) < min_len_of_text])
     extra_fields = len(fields) if len(fields) != len(req_fields) else ''
     unknown_fields = ', '.join([i for i in fields if i not in req_fields])
-    errors = dict(zip(err_msg, (numbers, short_texts,
-                                extra_fields, unknown_fields)))
-    return dict(filter(lambda x: x[1], errors.items()))
+    errors = zip(err_msg, (numbers, short_texts, extra_fields, unknown_fields))
+    return dict(filter(lambda x: x[1], errors))
 
 
 def read_articles():
@@ -72,7 +71,7 @@ def get_now_datetime_and_user():
 @app.route('/', methods=['GET', 'POST'])
 def show_main_page():
     article = request.form.to_dict()
-    errors = validate_form_data(article)
+    errors = article and validate_form_data(article)
     if request.method == 'POST' and (not errors):
         article['userid'] = g.user
         article_hash = add_article(article)
