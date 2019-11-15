@@ -11,6 +11,8 @@
 
     python3 server.py
 
+Кроме этого, вы можете включить режим отладки перед запуском, изменив значение переменной [DEBUG_MODE][] с False на True
+
 ## Зависимости
 
 Скрипт написан на языке Python 3, поэтому требует его наличия.
@@ -35,6 +37,7 @@
 Данный код написан для образовательных целей. Учебный курс для веб-разработчиков - [DEVMAN.org](https://devman.org)
 
 [веб-сайт]: http://telegraph.herokuapp.com/
+[DEBUG_MODE]: https://github.com/santax666/24_telegraph/blob/b216150be4a6c4bd1b16a4498d837fe17f3e207c/server.py#L7
 [Flask]: https://pypi.python.org/pypi/Flask/0.12.2
 [обсуждение]: https://github.com/santax666/24_telegraph/issues
 [ссылке]: http://flask.pocoo.org/docs/0.11/quickstart/
