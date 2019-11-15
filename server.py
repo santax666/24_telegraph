@@ -4,7 +4,7 @@ import json
 
 FORBIDDEN = 403
 NOT_FOUND = 404
-DEBUG_MODE = False
+DEBUG_MODE = True
 
 
 def generate_hash():
@@ -27,12 +27,15 @@ def validate_form_data(article):
 
 
 def read_articles():
-    with open('articles.json', 'r') as articles_file:
-        return json.load(articles_file)
+	try:
+		with open('articles.json', 'r') as articles_file:
+			return json.load(articles_file)
+	except FileNotFoundError:
+		return {}
 
 
 def write_articles(articles):
-    with open('articles.json', 'a') as articles_file:
+    with open('articles.json', 'w') as articles_file:
         json.dump(articles, articles_file, ensure_ascii=False)
 
 
@@ -49,12 +52,6 @@ def update_article(article_hash, edited_article):
 
 
 app = Flask(__name__)
-
-
-@app.before_first_request
-def create_articles_file():
-    with open('articles.json', 'w') as articles_file:
-        articles_file.write('{}')
 
 
 @app.before_request
