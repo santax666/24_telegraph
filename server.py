@@ -4,7 +4,7 @@ import json
 
 FORBIDDEN = 403
 NOT_FOUND = 404
-DEBUG_MODE = True
+DEBUG_MODE = False
 
 
 def generate_hash():
@@ -15,7 +15,7 @@ def generate_hash():
 def validate_form_data(article):
     min_len_of_text = 4
     err_msg = ('Поля содержат только числа', 'Текст в полях слишком короткий',
-               'Заполненных полей должно быть 3', 'Неизвестные поля')
+               'Заполненных полей должно быть 4', 'Неизвестные поля')
     req_fields = ('header', 'signature', 'body')
     fields, texts = article.keys(), article.values()
     numbers = ', '.join([i for i in texts if i.isdigit()])
@@ -27,11 +27,11 @@ def validate_form_data(article):
 
 
 def read_articles():
-	try:
-		with open('articles.json', 'r') as articles_file:
-			return json.load(articles_file)
-	except FileNotFoundError:
-		return {}
+    try:
+        with open('articles.json', 'r') as articles_file:
+            return json.load(articles_file)
+    except FileNotFoundError:
+        return {}
 
 
 def write_articles(articles):
@@ -39,16 +39,21 @@ def write_articles(articles):
         json.dump(articles, articles_file, ensure_ascii=False)
 
 
-def add_article(new_article):
-    article_hash = generate_hash()
-    update_article(article_hash, new_article)
-    return article_hash
-
-
-def update_article(article_hash, edited_article):
+def update_articles(article_hash, article_text):
     articles = read_articles()
-    articles.setdefault(article_hash, {}).update(edited_article)
+    hash_str = article_hash or generate_hash()
+    articles.setdefault(hash_str, {}).update(article_text)
     write_articles(articles)
+    return hash_str
+
+
+def show_edit_article_form(article, article_hash=''):
+    errors = article and validate_form_data(article)
+    if request.method == 'POST' and (not errors):
+        article['userid'] = g.user
+        hash_str = update_articles(article_hash, article)
+        return redirect(url_for('show_article', article_hash=hash_str))
+    return render_template('form.html', errors=errors, **article)
 
 
 app = Flask(__name__)
@@ -68,28 +73,21 @@ def get_now_datetime_and_user():
 @app.route('/', methods=['GET', 'POST'])
 def show_main_page():
     article = request.form.to_dict()
-    errors = article and validate_form_data(article)
-    if request.method == 'POST' and (not errors):
-        article['userid'] = g.user
-        article_hash = add_article(article)
-        return redirect(url_for('show_article', article_hash=article_hash))
-    return render_template('form.html', errors=errors, **article)
+    return show_edit_article_form(article)
+
+
+@app.route('/<article_hash>/edit', methods=['GET', 'POST'])
+def edit_article(article_hash):
+    article = read_articles().get(article_hash) or abort(NOT_FOUND)
+    g.user == article.pop('userid', '') or abort(FORBIDDEN)
+    article_for_edit = request.form.to_dict() or article
+    return show_edit_article_form(article_for_edit, article_hash)
 
 
 @app.route('/<article_hash>')
 def show_article(article_hash):
     article = read_articles().get(article_hash) or abort(NOT_FOUND)
     return render_template('article.html', hash_str=article_hash, **article)
-
-
-@app.route('/<article_hash>/edit', methods=['GET', 'POST'])
-def edit_article(article_hash):
-    article = read_articles().get(article_hash) or abort(NOT_FOUND)
-    g.user == article['userid'] or abort(FORBIDDEN)
-    if request.method == 'POST':
-        update_article(article_hash, request.form.to_dict())
-        return redirect(url_for('show_article', article_hash=article_hash))
-    return render_template('form.html', **article)
 
 
 if __name__ == "__main__":
