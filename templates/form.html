@@ -2,12 +2,7 @@
 {% block content %}
   {% if errors %}
     <div class="alert alert-danger">
-     <strong>Текст содержит ошибки:</strong><br>
-     <ul id="errors_msg">
-     {% for error, err_values in errors.items() %}
-       <li>{{ error }}: ({{ err_values }})</li>
-     {% endfor %}
-     </ul>
+     <strong>Текст содержит ошибки, исправьте их!</strong><br>
     </div>
   {% endif %}
   <form method="POST">
@@ -18,7 +13,7 @@
       <input required name="signature" class="form-control" placeholder="Подпись" value="{{ signature }}"/>
     </div>
     <div class="form-group">
-      <textarea required name="body" class="form-control" rows="10" placeholder="Ваша история">{{ body }}</textarea>
+      <textarea required name="body" class="form-control" rows="10" placeholder="Ваша история&#13;&#10;&#13;&#10;ВНИМАНИЕ!!!&#13;&#10;1. Поля не могут содержать только числа;&#13;&#10;2. Текст в полях должен быть больше 3 символов.">{{ body }}</textarea>
     </div>
     <div class="form-group">
       <button class="btn btn-primary" type="submit">Опубликовать</button>

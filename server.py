@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, g, redirect, url_for, abort, after_this_request
+from validator_collection.checkers import has_length, is_numeric
 from os import urandom
 import json
 
@@ -13,17 +14,13 @@ def generate_hash():
 
 
 def validate_form_data(article):
-    min_len_of_text = 4
-    err_msg = ('Поля содержат только числа', 'Текст в полях слишком короткий',
-               'Заполненных полей должно быть 4', 'Неизвестные поля')
     req_fields = ('header', 'signature', 'body')
     fields, texts = article.keys(), article.values()
-    numbers = ', '.join([i for i in texts if i.isdigit()])
-    short_texts = ', '.join([i for i in texts if len(i) < min_len_of_text])
-    extra_fields = len(fields) if len(fields) != len(req_fields) else ''
-    unknown_fields = ', '.join([i for i in fields if i not in req_fields])
-    errors = zip(err_msg, (numbers, short_texts, extra_fields, unknown_fields))
-    return dict(filter(lambda x: x[1], errors))
+    extra_fields = not has_length(fields, minimum=3, maximum=3)
+    short_texts = any(map(lambda x: has_length(x, maximum=3), texts))
+    numbers = any(map(is_numeric, texts))
+    unknown_fields = any([i not in req_fields for i in fields])
+    return any((extra_fields, short_texts, numbers, unknown_fields,))
 
 
 def read_articles():
