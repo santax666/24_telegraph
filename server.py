@@ -13,14 +13,27 @@ def generate_hash():
     return urandom(len_of_hash).hex()
 
 
-def validate_form_data(article):
+def invalid_count_of_fields(fields, correct_count=3):
+    return len(fields) != correct_count
+
+
+def has_unknown_fields(fields):
     req_fields = ('header', 'signature', 'body')
+    return any([i not in req_fields for i in fields])
+
+
+def form_has_digits(texts):
+    return any(map(is_numeric, texts))
+
+
+def has_short_texts(texts, min_text_len=4):
+    return not all(map(lambda x: has_length(x, minimum=min_text_len), texts))
+
+
+def validate_form_data(article):
     fields, texts = article.keys(), article.values()
-    extra_fields = not has_length(fields, minimum=3, maximum=3)
-    short_texts = any(map(lambda x: has_length(x, maximum=3), texts))
-    numbers = any(map(is_numeric, texts))
-    unknown_fields = any([i not in req_fields for i in fields])
-    return any((extra_fields, short_texts, numbers, unknown_fields,))
+    return any((invalid_count_of_fields(fields), has_unknown_fields(
+        fields), form_has_digits(texts), has_short_texts(texts)))
 
 
 def read_articles():
